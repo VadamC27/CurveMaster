@@ -1,0 +1,28 @@
+{
+  "name": "curvemaster",
+  "version": "1.0.0",
+  "description": "CurveMaster",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"npm:dev --workspace=server\" \"npm:dev --workspace=client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VadamC27/CurveMaster.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VadamC27/CurveMaster/issues"
+  },
+  "homepage": "https://github.com/VadamC27/CurveMaster#readme",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
