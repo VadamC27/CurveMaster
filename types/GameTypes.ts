@@ -14,6 +14,7 @@ export type Circle = {
     velocity: number;
     isAlive: boolean;
     isGoalreached: boolean;
+    timestamp: number;
  }
 
  export type BotAction = {

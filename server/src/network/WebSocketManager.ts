@@ -1,19 +1,21 @@
 import type { WebSocket } from "ws";
 import type { BotMessage, ServerMessage, ViewerStateMessage } from "./Protocol.js";
 import type { GameState } from "../../../types/GameTypes.js";
+import { performance } from "node:perf_hooks";
 
 type ClientType = 'bot' | 'viewer';
 
 type Client = {
     ws: WebSocket;
     type: ClientType;
-    botId?: string; 
+    botId?: string;
+    timestamp?: number; 
 }
 
 export class WebSocketManager {
     private clients: Map<WebSocket, Client> = new Map();
 
-    private onBotRegister?: (botId: string, name: string) => void;
+    private onBotRegister?: (botId: string, name: string, timestamp: number) => void;
     private onBotCommand?: (botId: string, action: any) => void;
 
     addConnection(ws: WebSocket): void {
@@ -41,7 +43,7 @@ export class WebSocketManager {
                 this.clients.set(ws, { ws, type: 'bot', botId: msg.botId });
             
                 if (this.onBotRegister) {
-                    this.onBotRegister(msg.botId, msg.name);
+                    this.onBotRegister(msg.botId, msg.name, performance.now());
                 }
             }
 
@@ -94,7 +96,7 @@ export class WebSocketManager {
         }
     }
 
-    onBotRegisterCallback(cb: (botId: string, name: string) => void): void {
+    onBotRegisterCallback(cb: (botId: string, name: string, timestamp: number) => void): void {
         this.onBotRegister = cb;
     }
 

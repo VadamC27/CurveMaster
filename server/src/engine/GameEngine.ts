@@ -1,12 +1,13 @@
-import type { BotAction, GameState, WorldData } from "../../../types/GameTypes.js";
+import type { Bot, BotAction, GameState, WorldData } from "../../../types/GameTypes.js";
 import { GAME_CONFIG } from "./GameConfig.js";
 import { Physics } from "./Physics.js";
 import { Sensors } from "./Sensors.js";
+import { Performance } from "node:perf_hooks";
 
 export type GameEndReason = 'goal' | 'collision' | 'timeout' | 'out_of_bounds';
 
 export type GameEndEvent = {
-  botId: string;
+  bot: Bot;
   reason: GameEndReason;
   tick: number;
 };
@@ -28,7 +29,7 @@ export class GameEngine {
         this.botActions = new Map();
     }
 
-    addNewBot(id: string, name: string) {
+    addNewBot(id: string, name: string, timestamp: number) {
         this.state.bots.push({
             id,
             name,
@@ -37,7 +38,8 @@ export class GameEngine {
             angle: 0,
             velocity: 0,
             isAlive: true,
-            isGoalreached: false
+            isGoalreached: false,
+            timestamp: timestamp
         });
     }
 
@@ -64,28 +66,28 @@ export class GameEngine {
 
             if (Physics.checkObstacleCollisions(bot, this.state.world.obstacles)) {
                 bot.isAlive = false;
-                this.endGame(bot.id, 'collision');
+                this.endGame(bot, 'collision');
                 continue;
             }
 
             if (Physics.isOutOfBounds(bot)) {
                 bot.isAlive = false;
-                this.endGame(bot.id, 'out_of_bounds');
+                this.endGame(bot, 'out_of_bounds');
                 continue;
             }
 
             if (Physics.checkGoalReached(bot, this.state.world.goal)) {
                 bot.isAlive = false;
                 bot.isGoalreached = true;
-                this.endGame(bot.id, 'goal');
+                this.endGame(bot, 'goal');
             }
         }
-
-        if (this.state.timeLimit !== null && this.state.tick >= this.state.timeLimit) {
-            for (const bot of this.state.bots) {
+        for (const bot of this.state.bots) {
+            if (this.state.timeLimit !== null && performance.now() - bot.timestamp >= this.state.timeLimit) {
+            
                 if (bot.isAlive) {
                     bot.isAlive = false;
-                    this.endGame(bot.id, 'timeout');
+                    this.endGame(bot, 'timeout');
                 }
             }
         }
@@ -93,9 +95,9 @@ export class GameEngine {
         this.state.tick++;   
     }
 
-    endGame(id: string, reason: GameEndReason) {
+    endGame(bot: Bot, reason: GameEndReason) {
         if (this.onGameEnd) {
-            this.onGameEnd({ botId: id, reason, tick: this.state.tick });
+            this.onGameEnd({ bot: bot, reason, tick: this.state.tick });
         }
     }
 
@@ -107,7 +109,7 @@ export class GameEngine {
         this.onSensorUpdate = cb;
     }
     
-    setGameEndCallback(cb: (event: { botId: string; reason: GameEndReason; tick: number; }) => void) {
+    setGameEndCallback(cb: (event: { bot: Bot; reason: GameEndReason; tick: number; }) => void) {
         this.onGameEnd = cb;
     }
 }

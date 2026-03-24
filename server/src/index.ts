@@ -31,17 +31,17 @@ gameEngine.setSensorUpdateCallback((botId: any, sensors: any) => {
   wsManager.sendToBot(botId, sensors);
 });
 
-gameEngine.setGameEndCallback((event: { botId: any; reason: any; tick: any; }) => {
-  wsManager.sendToBot(event.botId, {
+gameEngine.setGameEndCallback((event: { bot: any; reason: any; tick: any; }) => {
+  wsManager.sendToBot(event.bot.id, {
     type: 'gameOver',
     reason: event.reason,
-    ticks: event.tick,
+    ticks:   performance.now() - event.bot.timestamp,
   });
 });
 
 wsManager.onBotRegisterCallback((botId: any, name: any) => {
   console.log(`Bot registered: ${botId} (${name})`);
-  gameEngine.addNewBot(botId, name);
+  gameEngine.addNewBot(botId, name, performance.now());
 });
 
 wsManager.onBotCommandCallback((botId: any, action: any) => {
