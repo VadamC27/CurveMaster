@@ -1,6 +1,16 @@
 # CurveMaster
 
+install
+
+`npm i`
+
+Run
+
+`npm run dev`
+
 ## API
+
+Conect bots via websocket - default would be `ws://localhost:8080`
 
 ### Client-side messages
 
