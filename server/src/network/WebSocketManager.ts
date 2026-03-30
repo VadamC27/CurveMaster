@@ -65,7 +65,7 @@ export class WebSocketManager {
             }
         }
     }
-    broadcastToViewers(state: GameState): void { 
+    broadcastToViewers(state: GameState, lastSensors: Map<string, number[]>): void {
         let message: ViewerStateMessage = {
             type: 'viewerState',
             tick: state.tick,
@@ -77,7 +77,8 @@ export class WebSocketManager {
                 angle: bot.angle,
                 velocity: bot.velocity,
                 alive: bot.isAlive,
-                reachedGoal: bot.isGoalreached
+                reachedGoal: bot.isGoalreached,
+                sensorReadings: lastSensors.get(bot.id) ?? []
             })),
             world: {   
                 width: state.world.width,   

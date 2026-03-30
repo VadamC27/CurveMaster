@@ -55,7 +55,7 @@ wss.on('connection', (ws) => {
 
 setInterval(() => {
   gameEngine.tick();
-  wsManager.broadcastToViewers(gameEngine.getState());
+  wsManager.broadcastToViewers(gameEngine.getState(), gameEngine.getLastSensors());
 }, 1000 / GAME_CONFIG.TICK_RATE);
 
 console.log('CurveMaster server running on ws://localhost:8080');

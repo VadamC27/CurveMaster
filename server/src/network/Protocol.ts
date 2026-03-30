@@ -21,7 +21,7 @@ export type ServerStateMessage = {
   sensors: {
     angleToGoal: number;
     distanceToGoal: number;
-    obstacles: number[];
+    sensorReadings: number[];
   };
 };
 
@@ -45,6 +45,7 @@ export type ViewerStateMessage = {
     velocity: number;
     alive: boolean;
     reachedGoal: boolean;
+    sensorReadings: number[];
   }>;
   world: {
     width: number;

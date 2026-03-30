@@ -1,8 +1,6 @@
 import type { Bot, BotAction, GameState, WorldData } from "../../../types/GameTypes.js";
-import { GAME_CONFIG } from "./GameConfig.js";
 import { Physics } from "./Physics.js";
 import { Sensors } from "./Sensors.js";
-import { Performance } from "node:perf_hooks";
 
 export type GameEndReason = 'goal' | 'collision' | 'timeout' | 'out_of_bounds';
 
@@ -14,7 +12,8 @@ export type GameEndEvent = {
 
 export class GameEngine {
     private state: GameState;
-    private botActions: Map<string, BotAction>
+    private botActions: Map<string, BotAction>;
+    private lastSensors: Map<string, number[]>;
 
     private onSensorUpdate?: (botId: string, sensors: any) => void;
     private onGameEnd? : (event: GameEndEvent) => void;
@@ -27,6 +26,7 @@ export class GameEngine {
             timeLimit
         };
         this.botActions = new Map();
+        this.lastSensors = new Map();
     }
 
     addNewBot(id: string, name: string, timestamp: number) {
@@ -51,6 +51,8 @@ export class GameEngine {
         for(let bot of this.state.bots) {
             if(!bot.isAlive || bot.isGoalreached) continue;
             const sensors = Sensors.computeSensorReadings(bot, this.state.world);
+
+            this.lastSensors.set(bot.id, sensors.sensorReadings);
 
             if (this.onSensorUpdate) {
                 this.onSensorUpdate(bot.id, {
@@ -103,6 +105,10 @@ export class GameEngine {
 
     getState() : GameState {
         return this.state;
+    }
+
+    getLastSensors(): Map<string, number[]> {
+        return this.lastSensors;
     }
 
     setSensorUpdateCallback(cb: (botId: string, sensors: any) => void) {
